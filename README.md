@@ -1,41 +1,38 @@
-# 🧠 Interactive Business Analyst Interview Guide
+# Business Analyst Interview Prep Hub
 
-This is a beautifully designed, **interactive study tool** for Business Analyst interview preparation. It focuses on mastering the core skills required for aspiring BAs — **Excel, SQL, and Power BI** — through a structured, tab-based interface enriched with dynamic Q&A cards and gamified progress tracking.
+Interactive, single-page interview prep app for Business Analyst core topics:
+- Excel
+- SQL
+- Power BI
 
----
+## Features
 
-## 🔍 Features
+- Topic-based study tabs with question counters
+- Search across questions and answers in the active topic
+- Expand all / collapse all controls for fast revision
+- Per-question mastered tracking with progress checkboxes
+- Overall completion chart (Chart.js doughnut)
+- Persistent progress and session state with `localStorage`
+- Reset progress action for clean restarts
+- Keyboard shortcut: `/` to focus search
 
-### 🎯 Targeted Learning Tabs
-- **Excel**, **SQL**, and **Power BI** sections — organized with tabbed navigation.
-- Content is based on real-world interview expectations.
+## Tech Stack
 
-### 📚 Interactive Accordion Q&A
-- Each question is collapsible/expandable.
-- Promotes **active recall** and better engagement.
+- `HTML5`
+- `Tailwind CSS` (CDN)
+- `Chart.js` (CDN)
+- Vanilla `JavaScript`
 
-### ✅ Progress Tracker (Donut Chart)
-- Visualizes your learning journey with a real-time donut chart.
-- Progress updates dynamically as you check off "Mastered" questions.
+## Run Locally
 
-### 🔎 Smart Search
-- Global search bar to instantly find keywords like `VLOOKUP`, `JOIN`, or `DAX`.
-- Filters all Q&As across tabs for efficiency.
+No build step required.
 
-### 📊 Responsive Design
-- Built with **Tailwind CSS** for modern UI.
-- Fully responsive layout for mobile, tablet, and desktop.
+1. Open [index.html](index.html) in a browser.
+2. Start studying and mark questions as mastered.
+3. Reload to confirm persisted state is restored.
 
----
+## Project Structure
 
-## 🚀 Technologies Used
-
-| Tool | Purpose |
-|------|---------|
-| `HTML5` | Base markup for the application |
-| `Tailwind CSS` | Styling with utility-first classes |
-| `Chart.js` | For rendering the donut progress chart |
-| `JavaScript` | Dynamic interactivity and state management |
-
----
+- [index.html](index.html): Complete UI, interview content, logic, and chart integration.
+- [README.md](README.md): Project documentation.
 

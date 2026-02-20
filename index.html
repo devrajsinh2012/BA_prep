@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive BA Interview Study Guide</title>
+    <title>Business Analyst Interview Prep Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Chosen Palette: "Warm Dawn" -->
@@ -45,10 +45,23 @@
         .accordion-content.open {
             max-height: 1000px; /* Adjust as needed */
         }
+        .stat-value {
+            font-variant-numeric: tabular-nums;
+        }
         .tab-button[aria-selected="true"] {
             border-color: #4338ca;
             color: #4338ca;
             font-weight: 600;
+        }
+        .toast {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
         pre {
             background-color: #f3f4f6;
@@ -73,41 +86,67 @@
 
         <header class="text-center mb-8">
             <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Business Analyst Interview Guide</h1>
-            <p class="mt-2 text-lg text-slate-600">An interactive guide to master key concepts in Excel, SQL, and Power BI.</p>
+            <p class="mt-2 text-lg text-slate-600">A complete prep hub to master Excel, SQL, and Power BI interview questions with progress tracking.</p>
         </header>
 
         <div class="sticky top-0 z-10 bg-slate-50/80 backdrop-blur-md pt-4 pb-4 mb-8">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <div class="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xl font-semibold text-slate-900 mb-4 text-center">Your Progress</h2>
-                    <p class="text-center text-slate-500 mb-4">Check off questions as you master them to see your progress update in real-time.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1">
+                    <h2 class="text-xl font-semibold text-slate-900 mb-4 text-center">Overall Progress</h2>
+                    <p class="text-center text-slate-500 mb-4">Your mastered questions are saved in this browser and restored automatically.</p>
                     <div class="chart-container">
                         <canvas id="progressChart"></canvas>
                     </div>
+                    <div class="mt-4 text-center">
+                        <p id="overall-progress-text" class="text-sm text-slate-600"></p>
+                    </div>
                 </div>
 
-                <div class="w-full lg:w-2/3 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:col-span-2">
                     <div>
-                        <h2 class="text-xl font-semibold text-slate-900 mb-4">Topics</h2>
-                         <p class="text-slate-500 mb-4">Select a topic to view the questions. Use the search bar to filter questions by keywords like "VLOOKUP", "JOIN", or "DAX".</p>
+                        <h2 class="text-xl font-semibold text-slate-900 mb-4">Study Workspace</h2>
+                        <p class="text-slate-500 mb-4">Select a topic, search quickly, then expand questions and mark them mastered as you revise.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                        <div class="bg-slate-100 rounded-xl p-3">
+                            <p class="text-xs uppercase tracking-wide text-slate-500">Total Questions</p>
+                            <p id="stat-total" class="text-2xl font-semibold text-slate-900 stat-value">0</p>
+                        </div>
+                        <div class="bg-slate-100 rounded-xl p-3">
+                            <p class="text-xs uppercase tracking-wide text-slate-500">Mastered</p>
+                            <p id="stat-mastered" class="text-2xl font-semibold text-indigo-700 stat-value">0</p>
+                        </div>
+                        <div class="bg-slate-100 rounded-xl p-3">
+                            <p class="text-xs uppercase tracking-wide text-slate-500">Current Topic</p>
+                            <p id="stat-topic" class="text-2xl font-semibold text-slate-900">Excel</p>
+                        </div>
                     </div>
                     <div class="mt-auto">
                         <div class="mb-4">
-                            <input type="search" id="search-input" placeholder="🔍 Search questions..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            <input type="search" id="search-input" placeholder="🔍 Search questions, answers, formulas..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                         </div>
                         <nav id="tabs" class="grid grid-cols-3 gap-2" aria-label="Tabs">
-                            <button class="tab-button p-3 text-center border-b-4 border-transparent text-slate-600 hover:bg-slate-100 rounded-t-lg transition" data-category="excel">Excel</button>
-                            <button class="tab-button p-3 text-center border-b-4 border-transparent text-slate-600 hover:bg-slate-100 rounded-t-lg transition" data-category="sql">SQL</button>
-                            <button class="tab-button p-3 text-center border-b-4 border-transparent text-slate-600 hover:bg-slate-100 rounded-t-lg transition" data-category="powerbi">Power BI</button>
+                            <button class="tab-button p-3 text-center border-b-4 border-transparent text-slate-600 hover:bg-slate-100 rounded-t-lg transition" data-category="excel">Excel <span id="excel-count" class="text-xs text-slate-400"></span></button>
+                            <button class="tab-button p-3 text-center border-b-4 border-transparent text-slate-600 hover:bg-slate-100 rounded-t-lg transition" data-category="sql">SQL <span id="sql-count" class="text-xs text-slate-400"></span></button>
+                            <button class="tab-button p-3 text-center border-b-4 border-transparent text-slate-600 hover:bg-slate-100 rounded-t-lg transition" data-category="powerbi">Power BI <span id="powerbi-count" class="text-xs text-slate-400"></span></button>
                         </nav>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <button id="expand-all" class="px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Expand All</button>
+                            <button id="collapse-all" class="px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Collapse All</button>
+                            <button id="reset-progress" class="px-3 py-2 text-sm bg-rose-50 text-rose-700 rounded-lg hover:bg-rose-100 transition">Reset Progress</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div id="results-summary" class="mb-4 text-sm text-slate-500"></div>
         
         <main id="qa-container" class="space-y-4">
             <!-- Q&A items will be dynamically inserted here -->
         </main>
+
+        <div id="toast" class="toast fixed bottom-4 right-4 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg"></div>
 
     </div>
 
@@ -406,8 +445,24 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
         const qaContainer = document.getElementById('qa-container');
         const tabs = document.getElementById('tabs');
         const searchInput = document.getElementById('search-input');
-        
-        let state = {
+        const expandAllBtn = document.getElementById('expand-all');
+        const collapseAllBtn = document.getElementById('collapse-all');
+        const resetProgressBtn = document.getElementById('reset-progress');
+        const resultsSummary = document.getElementById('results-summary');
+        const overallProgressText = document.getElementById('overall-progress-text');
+        const statTotal = document.getElementById('stat-total');
+        const statMastered = document.getElementById('stat-mastered');
+        const statTopic = document.getElementById('stat-topic');
+        const toastEl = document.getElementById('toast');
+
+        const STORAGE_KEY = 'ba_interview_prep_state_v1';
+        const categoryLabels = {
+            excel: 'Excel',
+            sql: 'SQL',
+            powerbi: 'Power BI'
+        };
+
+        const getDefaultState = () => ({
             activeCategory: 'excel',
             searchTerm: '',
             checkedItems: {
@@ -415,6 +470,43 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
                 sql: new Set(),
                 powerbi: new Set()
             }
+        });
+
+        const loadState = () => {
+            const fallback = getDefaultState();
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+                return fallback;
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                return {
+                    activeCategory: parsed.activeCategory && interviewData[parsed.activeCategory] ? parsed.activeCategory : 'excel',
+                    searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
+                    checkedItems: {
+                        excel: new Set(Array.isArray(parsed?.checkedItems?.excel) ? parsed.checkedItems.excel : []),
+                        sql: new Set(Array.isArray(parsed?.checkedItems?.sql) ? parsed.checkedItems.sql : []),
+                        powerbi: new Set(Array.isArray(parsed?.checkedItems?.powerbi) ? parsed.checkedItems.powerbi : [])
+                    }
+                };
+            } catch {
+                return fallback;
+            }
+        };
+
+        let state = loadState();
+
+        const persistState = () => {
+            const serializable = {
+                activeCategory: state.activeCategory,
+                searchTerm: state.searchTerm,
+                checkedItems: {
+                    excel: Array.from(state.checkedItems.excel),
+                    sql: Array.from(state.checkedItems.sql),
+                    powerbi: Array.from(state.checkedItems.powerbi)
+                }
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
         };
 
         const progressChartCtx = document.getElementById('progressChart').getContext('2d');
@@ -423,7 +515,7 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
             data: {
                 labels: ['Completed', 'Remaining'],
                 datasets: [{
-                    data: [0, 15],
+                    data: [0, 45],
                     backgroundColor: [
                         '#4f46e5', // indigo-600
                         '#e5e7eb'  // gray-200
@@ -452,17 +544,55 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
             }
         });
 
+        const showToast = (message) => {
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 1400);
+        };
+
+        const getTotalQuestions = () => Object.values(interviewData).reduce((sum, list) => sum + list.length, 0);
+
+        const getMasteredCount = () => Object.values(state.checkedItems).reduce((sum, setObj) => sum + setObj.size, 0);
+
+        const updateTabCounts = () => {
+            ['excel', 'sql', 'powerbi'].forEach((category) => {
+                const completed = state.checkedItems[category].size;
+                const total = interviewData[category].length;
+                const target = document.getElementById(`${category}-count`);
+                if (target) {
+                    target.textContent = `(${completed}/${total})`;
+                }
+            });
+        };
+
+        const updateProgressChart = () => {
+            const totalQuestions = getTotalQuestions();
+            const completedQuestions = getMasteredCount();
+            chart.data.datasets[0].data = [completedQuestions, totalQuestions - completedQuestions];
+            chart.update();
+
+            const percent = Math.round((completedQuestions / totalQuestions) * 100);
+            overallProgressText.textContent = `${completedQuestions} / ${totalQuestions} mastered (${percent}%)`;
+            statTotal.textContent = totalQuestions;
+            statMastered.textContent = completedQuestions;
+            statTopic.textContent = categoryLabels[state.activeCategory];
+            updateTabCounts();
+        };
+
         const createAccordionItem = (item, index, category) => {
             const isChecked = state.checkedItems[category].has(index);
+            const panelId = `${category}-panel-${index}`;
             const content = `
                 <div class="accordion-item bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden" data-question="${item.question.toLowerCase()}">
-                    <button class="accordion-button w-full flex justify-between items-center text-left p-5 focus:outline-none">
+                    <button class="accordion-button w-full flex justify-between items-center text-left p-5 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-expanded="false" aria-controls="${panelId}">
                         <span class="font-semibold text-slate-800">${item.question}</span>
-                        <span class="accordion-icon transition-transform transform text-indigo-600">
-                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <span class="accordion-icon transition-transform transform text-indigo-600 text-2xl leading-none" aria-hidden="true">
+                           ⌄
                         </span>
                     </button>
-                    <div class="accordion-content">
+                    <div class="accordion-content" id="${panelId}">
                         <div class="p-5 pt-0 text-slate-600 space-y-4">
                             ${item.answer}
                             <div class="mt-4 pt-4 border-t border-slate-200">
@@ -480,17 +610,21 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
         const renderContent = () => {
             qaContainer.innerHTML = '';
             const categoryData = interviewData[state.activeCategory];
-            const filteredData = categoryData.filter(item => 
-                item.question.toLowerCase().includes(state.searchTerm.toLowerCase()) || 
-                item.answer.toLowerCase().includes(state.searchTerm.toLowerCase())
+                const normalizedSearch = state.searchTerm.trim().toLowerCase();
+                const filteredData = categoryData.filter(item => 
+                    item.question.toLowerCase().includes(normalizedSearch) || 
+                    item.answer.toLowerCase().includes(normalizedSearch)
             );
+
+                resultsSummary.textContent = `${filteredData.length} of ${categoryData.length} questions shown in ${categoryLabels[state.activeCategory]}`;
             
             if (filteredData.length === 0) {
                  qaContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg shadow-sm"><p class="text-slate-500">No questions found matching your search.</p></div>`;
+                     updateProgressChart();
                  return;
             }
 
-            filteredData.forEach((item, originalIndex) => {
+                filteredData.forEach((item) => {
                  const originalIdx = categoryData.findIndex(d => d.question === item.question);
                  qaContainer.innerHTML += createAccordionItem(item, originalIdx, state.activeCategory);
             });
@@ -498,30 +632,21 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
             updateProgressChart();
         };
 
-        const updateProgressChart = () => {
-            const category = state.activeCategory;
-            const totalQuestions = interviewData[category].length;
-            const completedQuestions = state.checkedItems[category].size;
-            chart.data.datasets[0].data = [completedQuestions, totalQuestions - completedQuestions];
-            chart.update();
-        };
+            const toggleAccordion = (button, forceOpen = null) => {
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('.accordion-icon');
+                const isOpen = content.classList.contains('open');
+                const nextState = forceOpen === null ? !isOpen : forceOpen;
+
+                content.classList.toggle('open', nextState);
+                icon.classList.toggle('rotate-180', nextState);
+                button.setAttribute('aria-expanded', String(nextState));
+            };
 
         const attachAccordionListeners = () => {
              qaContainer.querySelectorAll('.accordion-button').forEach(button => {
                 button.addEventListener('click', () => {
-                    const content = button.nextElementSibling;
-                    const icon = button.querySelector('.accordion-icon');
-                    const isOpen = content.classList.contains('open');
-
-                    qaContainer.querySelectorAll('.accordion-content.open').forEach(openContent => {
-                        openContent.classList.remove('open');
-                        openContent.previousElementSibling.querySelector('.accordion-icon').classList.remove('rotate-180');
-                    });
-                    
-                    if(!isOpen) {
-                        content.classList.add('open');
-                        icon.classList.add('rotate-180');
-                    }
+                        toggleAccordion(button);
                 });
             });
 
@@ -531,31 +656,71 @@ INNER JOIN Products p ON o.ProductID = p.ProductID;</code></pre>`
                     const index = parseInt(e.target.dataset.index);
                     if (e.target.checked) {
                         state.checkedItems[category].add(index);
+                            showToast('Marked as mastered');
                     } else {
                         state.checkedItems[category].delete(index);
                     }
+                        persistState();
                     updateProgressChart();
                 });
             });
         };
+
+            expandAllBtn.addEventListener('click', () => {
+                qaContainer.querySelectorAll('.accordion-button').forEach((button) => {
+                    toggleAccordion(button, true);
+                });
+            });
+
+            collapseAllBtn.addEventListener('click', () => {
+                qaContainer.querySelectorAll('.accordion-button').forEach((button) => {
+                    toggleAccordion(button, false);
+                });
+            });
+
+            resetProgressBtn.addEventListener('click', () => {
+                if (!confirm('Reset all mastered progress for every topic?')) {
+                    return;
+                }
+                state.checkedItems = {
+                    excel: new Set(),
+                    sql: new Set(),
+                    powerbi: new Set()
+                };
+                persistState();
+                renderContent();
+                showToast('Progress has been reset');
+            });
         
         tabs.addEventListener('click', (e) => {
-            if (e.target.matches('.tab-button')) {
-                state.activeCategory = e.target.dataset.category;
+            const button = e.target.closest('.tab-button');
+            if (button) {
+                state.activeCategory = button.dataset.category;
                 tabs.querySelectorAll('.tab-button').forEach(tab => {
-                    tab.setAttribute('aria-selected', tab === e.target);
+                    tab.setAttribute('aria-selected', tab === button);
                 });
+                    persistState();
                 renderContent();
             }
         });
 
         searchInput.addEventListener('input', (e) => {
             state.searchTerm = e.target.value;
+                persistState();
             renderContent();
         });
 
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+
         const init = () => {
+                searchInput.value = state.searchTerm;
             tabs.querySelector(`[data-category="${state.activeCategory}"]`).setAttribute('aria-selected', true);
+                persistState();
             renderContent();
         };
 
